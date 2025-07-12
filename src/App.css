@@ -18,24 +18,24 @@
 
 body {
   margin: 0;
-  background: #FFE066; /* bright yellow background */
+  background: #FFE066; 
   font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
-/* Main 2x2 Grid Container */
+
 .main-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  height: calc(100vh - 70px); /* subtract header height */
+  height: calc(100vh - 70px); 
   gap: 8px;
   padding: 8px;
   background: #FFE066;
 }
 
-/* Individual Grid Sections */
+
 .actions-section {
-  background: #FF9999; /* light red */
+  background: #FF9999; 
   border: 4px solid #333;
   border-radius: 15px;
   padding: 15px;
@@ -43,7 +43,7 @@ body {
 }
 
 .preview-section {
-  background: #99CCFF; /* light blue */
+  background: #99CCFF; 
   border: 4px solid #333;
   border-radius: 15px;
   padding: 15px;
@@ -52,7 +52,7 @@ body {
 }
 
 .coding-section {
-  background: #99FF99; /* light green */
+  background: #99FF99; 
   border: 4px solid #333;
   border-radius: 15px;
   padding: 15px;
@@ -60,14 +60,14 @@ body {
 }
 
 .sprite-library-section {
-  background: #FFCC99; /* light orange */
+  background: #FFCC99; 
   border: 4px solid #333;
   border-radius: 15px;
   padding: 15px;
   overflow-y: auto;
 }
 
-/* Section Headers */
+
 .section-header {
   font-family: 'Comic Sans MS', cursive, sans-serif;
   font-size: 24px;
@@ -178,7 +178,7 @@ body {
   box-shadow: 5px 5px 0px #333;
 }
 
-/* Sprite Library Styling */
+
 .sprite-item {
   border: 3px solid #333;
   border-radius: 8px;
