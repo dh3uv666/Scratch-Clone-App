@@ -14,25 +14,21 @@ function App() {
       </div>
       
       <div className="main-container">
-        {/* Top Left - Actions */}
         <div className="actions-section">
           <div className="section-header"></div>
           <Sidebar />
         </div>
 
-        {/* Top Right - Preview */}
         <div className="preview-section">
           <div className="section-header">PREVIEW</div>
           <PreviewArea />
         </div>
 
-        {/* Bottom Left - Coding Area */}
         <div className="coding-section">
           <div className="section-header"></div>
           <MidArea />
         </div>
 
-        {/* Bottom Right - Sprite Library */}
         <div className="sprite-library-section">
           <div className="section-header">SPRITE LIBRARY</div>
           <SpriteLibrary />
