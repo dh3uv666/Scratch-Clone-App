@@ -222,7 +222,6 @@ export default function PreviewArea() {
 
   return (
     <Stack height="100%" gap={2}>
-      {/* Control Buttons */}
       <Stack direction="row" justifyContent="center" gap={2}>
         <Button 
           className="playButton"
@@ -264,7 +263,6 @@ export default function PreviewArea() {
         </Button>
       </Stack>
 
-      {/* Stage Area */}
       <Stack
         ref={containerRef}
         className="previewArea"
@@ -316,7 +314,6 @@ export default function PreviewArea() {
           </Box>
         ))}
         
-        {/* Empty state message */}
         {state.multipleSprites.length === 0 && (
           <Box
             style={{
