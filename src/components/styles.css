@@ -1,0 +1,64 @@
+.sidebarEvents {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: #4C97FE;
+    border: 3px solid #333;
+    border-radius: 8px;
+    color: white;
+    padding: 12px;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    cursor: pointer;
+    margin: 8px 0;
+    box-shadow: 3px 3px 0px #333;
+    transition: all 0.2s ease;
+}
+
+.sidebarEvents:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px #333;
+    background-color: #3D7BFE;
+}
+
+.deleteBTN {
+    margin-left: auto;
+    background-color: transparent;
+}
+
+.deleteBTN button{
+    background-color: #FF4444;
+    border: 2px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 2px 2px 0px #333;
+}
+
+.deleteBTN button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #333;
+}
+
+/* Coding Area specific styles */
+.coding-area-content {
+    min-height: 300px;
+    border: 2px dashed #333;
+    border-radius: 8px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    margin-top: 10px;
+}
+
+.coding-area-empty {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+    font-size: 18px;
+}

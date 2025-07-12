@@ -1,0 +1,201 @@
+#root {
+  margin: 0;
+  text-align: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(to right, #f747c2); 
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 24px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-weight: bold;
+  border-bottom: 4px solid #333;
+}
+
+body {
+  margin: 0;
+  background: #FFE066; /* bright yellow background */
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+/* Main 2x2 Grid Container */
+.main-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: calc(100vh - 70px); /* subtract header height */
+  gap: 8px;
+  padding: 8px;
+  background: #FFE066;
+}
+
+/* Individual Grid Sections */
+.actions-section {
+  background: #FF9999; /* light red */
+  border: 4px solid #333;
+  border-radius: 15px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.preview-section {
+  background: #99CCFF; /* light blue */
+  border: 4px solid #333;
+  border-radius: 15px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.coding-section {
+  background: #99FF99; /* light green */
+  border: 4px solid #333;
+  border-radius: 15px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.sprite-library-section {
+  background: #FFCC99; /* light orange */
+  border: 4px solid #333;
+  border-radius: 15px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+/* Section Headers */
+.section-header {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.container {
+  border: 3px solid #333;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 3px 3px 0px #333;
+  margin: 8px 0;
+}
+
+.sidebarEvents {
+  background: #4C97FE;
+  padding: 12px;
+  border-radius: 8px;
+  border: 3px solid #333;
+  margin: 8px 0;
+  cursor: move;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-weight: bold;
+  color: white;
+  box-shadow: 3px 3px 0px #333;
+  transition: all 0.2s ease;
+}
+
+.sidebarEvents:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #333;
+}
+
+.actionsPanel {
+  max-height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.previewArea {
+  flex: 1;
+  border: 3px solid #333;
+  border-radius: 10px;
+  background-color: #ffffff;
+  margin-top: 10px;
+  position: relative;
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.previewControls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.playButton, .resetButton {
+  font-size: 16px;
+  padding: 10px 20px;
+  border: 3px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-weight: bold;
+  box-shadow: 3px 3px 0px #333;
+  transition: all 0.2s ease;
+}
+
+.playButton {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.resetButton {
+  background-color: #F44336;
+  color: white;
+}
+
+.playButton:hover, .resetButton:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #333;
+}
+
+.addSprite {
+  font-size: 14px;
+  padding: 8px 15px;
+  border: 3px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #FF9800;
+  color: white;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-weight: bold;
+  box-shadow: 3px 3px 0px #333;
+}
+
+.addSprite:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #333;
+}
+
+/* Sprite Library Styling */
+.sprite-item {
+  border: 3px solid #333;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 8px 0;
+  background: white;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px #333;
+  transition: all 0.2s ease;
+}
+
+.sprite-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px #333;
+}
+
+.sprite-item.active {
+  background: #FFE066;
+  border-color: #FF6B6B;
+}
