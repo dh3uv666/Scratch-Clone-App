@@ -14,6 +14,10 @@ import {
   SET_REPEAT_IN_MID_AREA,
   UPDATE_MID_AREA_DATA,
   SET_SPRITE_ACTION,
+  SET_HERO_MODE,
+  SET_COLLIDED,
+  SWAP_QUEUES,
+  REVERT_POSITIONS_ON_COLLISION,
 } from "./constants";
 
 const reducer = (state, action) => {
@@ -38,14 +42,13 @@ const reducer = (state, action) => {
       };
 
     case SET_REPEAT_IN_MID_AREA:
-  return {
-    ...state,
-    midAreaData: [
-      ...(state.midAreaData ?? []),
-      { spriteId: state.activeSprite, ...action.payload },
-    ],
-  };
-
+      return {
+        ...state,
+        midAreaData: [
+          ...(state.midAreaData ?? []),
+          { spriteId: state.activeSprite, ...action.payload },
+        ],
+      };
 
     case DELETE_MID_AREA_DATA:
       return {
@@ -54,7 +57,7 @@ const reducer = (state, action) => {
           (item) => item?.id !== action.payload?.id
         ),
       };
-    
+
     case SET_ACTIVE_SPRITE:
       return { ...state, activeSprite: action.payload };
 
@@ -75,7 +78,6 @@ const reducer = (state, action) => {
       const sprite1 = sprites[index1];
       const sprite2 = sprites[index2];
 
-      // Swap position and sprite icon (name)
       const updatedSprites = sprites.map((sprite) => {
         if (sprite.id === id1) {
           return {
@@ -124,12 +126,33 @@ const reducer = (state, action) => {
           sprite.id === action.payload.id
             ? {
                 ...sprite,
+                prevX: sprite.x,
+                prevY: sprite.y,
                 x: action.payload.x ?? sprite.x,
                 y: action.payload.y ?? sprite.y,
               }
             : sprite
         ),
       };
+
+    case REVERT_POSITIONS_ON_COLLISION: {
+      const { id1, id2 } = action.payload;
+      const updatedSprites = state.multipleSprites.map((sprite) => {
+        if (sprite.id === id1 || sprite.id === id2) {
+          return {
+            ...sprite,
+            x: sprite.prevX ?? sprite.x,
+            y: sprite.prevY ?? sprite.y,
+          };
+        }
+        return sprite;
+      });
+
+      return {
+        ...state,
+        multipleSprites: updatedSprites,
+      };
+    }
 
     case ROTATE_SPRITE:
       return {
@@ -157,6 +180,38 @@ const reducer = (state, action) => {
         ),
       };
 
+    case SET_HERO_MODE:
+      return {
+        ...state,
+        heroMode: action.payload,
+        collided: false,
+      };
+
+    case SET_COLLIDED:
+      return {
+        ...state,
+        collided: action.payload,
+      };
+
+    case SWAP_QUEUES: {
+      const { id1, id2 } = action.payload;
+      const sprite1Instructions = state.midAreaData.filter(item => item.spriteId === id1);
+      const sprite2Instructions = state.midAreaData.filter(item => item.spriteId === id2);
+      const otherInstructions = state.midAreaData.filter(item => item.spriteId !== id1 && item.spriteId !== id2);
+
+      const swappedInstructions = [
+        ...otherInstructions,
+        ...sprite1Instructions.map(item => ({ ...item, spriteId: id2 })),
+        ...sprite2Instructions.map(item => ({ ...item, spriteId: id1 }))
+      ];
+
+      return {
+        ...state,
+        midAreaData: swappedInstructions,
+        collided: true,
+      };
+    }
+
     default:
       return state;
   }
@@ -169,6 +224,8 @@ export const AppContextProvider = ({ children }) => {
       midAreaData: [],
       activeSprite: id,
       collision: [],
+      heroMode: false,
+      collided: false,
       multipleSprites: [
         {
           id,
