@@ -25,8 +25,8 @@ body {
 
 .main-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: 1fr 2fr;
   height: calc(100vh - 70px); 
   gap: 8px;
   padding: 8px;
