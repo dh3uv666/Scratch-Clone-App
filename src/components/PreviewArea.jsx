@@ -27,6 +27,7 @@ const SPRITE_SIZE = 50;
 export default function PreviewArea() {
   const { state, dispatch } = useAppContext();
   const containerRef = useRef(null);
+  const isRunningRef = useRef(false);
 
   const executeInstruction = async (instruction, spriteId, repeat = 1) => {
     const sprite = state.multipleSprites.find((s) => s.id === spriteId);
@@ -123,6 +124,9 @@ export default function PreviewArea() {
   };
 
   const handlePlayButton = useCallback(() => {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
+
     const grouped = Object.groupBy(state.midAreaData, (item) => item?.spriteId);
 
     const runInstructions = async () => {
@@ -136,6 +140,8 @@ export default function PreviewArea() {
           await executeInstruction(instruction, spriteId, repeat);
         }
       }
+
+      isRunningRef.current = false;
     };
 
     runInstructions();
@@ -205,7 +211,7 @@ export default function PreviewArea() {
   }, [checkCollision]);
 
   useEffect(() => {
-    if (state.collided && state.heroMode) {
+    if (state.collided && state.heroMode && !isRunningRef.current) {
       setTimeout(() => {
         handlePlayButton();
       }, 500);
@@ -230,7 +236,7 @@ export default function PreviewArea() {
     }
   };
 
-  return (
+  return  (
     <Stack height="100%" gap={2}>
       <Stack direction="row" justifyContent="center" gap={2} alignItems="center">
         <Button
