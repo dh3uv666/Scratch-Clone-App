@@ -3,8 +3,10 @@ import {
   Button,
   Stack,
   Typography,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import CatSprite from "./CatSprite";
 import DogSprite from "./DogSprite";
 import BallSprite from "./BallSprite";
@@ -14,6 +16,9 @@ import {
   UPDATE_SPRITE_POSITION,
   SWAP_POSITIONS_OF_STRIPS,
   SET_SPRITE_ACTION,
+  SET_HERO_MODE,
+  SET_COLLIDED,
+  SWAP_QUEUES,
 } from "../context/constants";
 import { MOVE_SPRITE } from "../helpers/sidebarReducer";
 
@@ -22,7 +27,6 @@ const SPRITE_SIZE = 50;
 export default function PreviewArea() {
   const { state, dispatch } = useAppContext();
   const containerRef = useRef(null);
-  const collidedPairs = useRef(new Set());
 
   const executeInstruction = async (instruction, spriteId, repeat = 1) => {
     const sprite = state.multipleSprites.find((s) => s.id === spriteId);
@@ -33,7 +37,7 @@ export default function PreviewArea() {
       const action = (type, payload) => dispatch({ type, payload });
 
       if (instruction.moveBy) {
-        const duration = 1000; 
+        const duration = 1000;
         const startTime = performance.now();
         const startX = sprite.x;
         const startY = sprite.y;
@@ -122,23 +126,26 @@ export default function PreviewArea() {
     const grouped = Object.groupBy(state.midAreaData, (item) => item?.spriteId);
 
     const runInstructions = async () => {
-      for (const [spriteId, instructions] of Object.entries(grouped)) {
-        const repeat = instructions?.[0]?.repeat || 1;
+      const spriteIds = Object.keys(grouped);
+      const runIds = state.heroMode ? spriteIds.slice(0, 2) : spriteIds;
+
+      for (const spriteId of runIds) {
+        const instructions = grouped[spriteId] || [];
         for (const instruction of instructions) {
+          const repeat = instruction.repeat || 1;
           await executeInstruction(instruction, spriteId, repeat);
         }
       }
     };
 
     runInstructions();
-  }, [state.midAreaData, state.multipleSprites, dispatch]);
+  }, [state.midAreaData, state.multipleSprites, state.heroMode, dispatch]);
 
   const handleResetButton = useCallback(() => {
-    // Reset all sprites to initial positions
     state.multipleSprites.forEach((sprite) => {
       dispatch({
         type: UPDATE_SPRITE_POSITION,
-        payload: { id: sprite.id, x: 0, y: 0 }
+        payload: { id: sprite.id, x: 0, y: 0 },
       });
     });
   }, [state.multipleSprites, dispatch]);
@@ -162,45 +169,48 @@ export default function PreviewArea() {
   );
 
   const checkCollision = useCallback(() => {
-    const threshold = 50;
-    const currentCollisions = new Set();
+    if (!state.heroMode || state.multipleSprites.length < 2) return;
 
-    for (let i = 0; i < state.multipleSprites.length; i++) {
-      for (let j = i + 1; j < state.multipleSprites.length; j++) {
-        const sprite1 = state.multipleSprites[i];
-        const sprite2 = state.multipleSprites[j];
+    const threshold = 40;
+    const sprites = state.multipleSprites;
+    let collisionDetected = false;
 
-        const dx = sprite1.x - sprite2.x;
-        const dy = sprite1.y - sprite2.y;
+    for (let i = 0; i < sprites.length; i++) {
+      for (let j = i + 1; j < sprites.length; j++) {
+        const s1 = sprites[i];
+        const s2 = sprites[j];
+
+        const dx = s1.x - s2.x;
+        const dy = s1.y - s2.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        const key = [sprite1.id, sprite2.id].sort().join("_");
-
         if (distance < threshold) {
-          currentCollisions.add(key);
-          if (!collidedPairs.current.has(key)) {
-            collidedPairs.current.add(key);
-
-            dispatch({
-              type: SWAP_POSITIONS_OF_STRIPS,
-              payload: { id1: sprite1.id, id2: sprite2.id },
-            });
+          collisionDetected = true;
+          if (!state.collided) {
+            dispatch({ type: SWAP_QUEUES, payload: { id1: s1.id, id2: s2.id } });
+            dispatch({ type: SET_COLLIDED, payload: true });
           }
         }
       }
     }
 
-    for (const key of collidedPairs.current) {
-      if (!currentCollisions.has(key)) {
-        collidedPairs.current.delete(key);
-      }
+    if (!collisionDetected && state.collided) {
+      dispatch({ type: SET_COLLIDED, payload: false });
     }
-  }, [state.multipleSprites, dispatch]);
+  }, [state.multipleSprites, state.heroMode, state.collided, dispatch]);
 
   useEffect(() => {
     const interval = setInterval(checkCollision, 100);
     return () => clearInterval(interval);
   }, [checkCollision]);
+
+  useEffect(() => {
+    if (state.collided && state.heroMode) {
+      setTimeout(() => {
+        handlePlayButton();
+      }, 500);
+    }
+  }, [state.collided, state.heroMode, handlePlayButton]);
 
   const renderSprite = (item) => {
     const sharedStyle = {
@@ -222,10 +232,9 @@ export default function PreviewArea() {
 
   return (
     <Stack height="100%" gap={2}>
-      <Stack direction="row" justifyContent="center" gap={2}>
-        <Button 
-          className="playButton"
-          variant="contained" 
+      <Stack direction="row" justifyContent="center" gap={2} alignItems="center">
+        <Button
+          variant="contained"
           onClick={handlePlayButton}
           style={{
             backgroundColor: '#4CAF50',
@@ -240,11 +249,10 @@ export default function PreviewArea() {
             padding: '10px 20px'
           }}
         >
-          ▶️ Play
+          ▶️ Play All
         </Button>
-        <Button 
-          className="resetButton"
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleResetButton}
           style={{
             backgroundColor: '#F44336',
@@ -261,15 +269,29 @@ export default function PreviewArea() {
         >
           🔄 Reset
         </Button>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={state.heroMode}
+              onChange={(e) => dispatch({ type: SET_HERO_MODE, payload: e.target.checked })}
+              style={{ color: '#333' }}
+            />
+          }
+          label={
+            <Typography style={{ fontFamily: 'Comic Sans MS', fontWeight: 'bold', color: '#333' }}>
+              🦸 Hero Mode
+            </Typography>
+          }
+        />
       </Stack>
 
       <Stack
         ref={containerRef}
         className="previewArea"
-        height={1}
         position="relative"
         overflow="hidden"
         width={1}
+        height={1}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDragDrop}
         style={{
@@ -283,7 +305,7 @@ export default function PreviewArea() {
       >
         {state.multipleSprites.map((item) => (
           <Box
-            key={`${item.id}-${item.name}`} 
+            key={`${item.id}-${item.name}`}
             sx={{
               position: "absolute",
               left: `${item.x}px`,
@@ -305,7 +327,7 @@ export default function PreviewArea() {
               style={{
                 width: "100%",
                 height: "100%",
-                transform: `rotate(${item.rotate}deg)`,
+                transform: `rotate(${item.rotate ?? 0}deg)`,
                 transition: "transform 0.8s ease-in-out",
               }}
             >
@@ -313,7 +335,7 @@ export default function PreviewArea() {
             </div>
           </Box>
         ))}
-        
+
         {state.multipleSprites.length === 0 && (
           <Box
             style={{
@@ -328,7 +350,7 @@ export default function PreviewArea() {
               fontStyle: 'italic'
             }}
           >
-            Add sprites from the library<br/>to see them here!
+            Add sprites from the library<br />to see them here!
           </Box>
         )}
       </Stack>
