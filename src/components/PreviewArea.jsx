@@ -28,6 +28,9 @@ export default function PreviewArea() {
   const { state, dispatch } = useAppContext();
   const containerRef = useRef(null);
   const isRunningRef = useRef(false);
+  const lastCollisionTimeRef = useRef(0);
+  const swapLockRef = useRef(false);
+
 
   const executeInstruction = async (instruction, spriteId, repeat = 1) => {
     const sprite = state.multipleSprites.find((s) => s.id === spriteId);
@@ -175,48 +178,64 @@ export default function PreviewArea() {
   );
 
   const checkCollision = useCallback(() => {
-    if (!state.heroMode || state.multipleSprites.length < 2) return;
+  if (!state.heroMode || state.multipleSprites.length < 2 || swapLockRef.current) return;
 
-    const threshold = 40;
-    const sprites = state.multipleSprites;
-    let collisionDetected = false;
+  const threshold = 40;
+  const sprites = state.multipleSprites;
+  let collisionDetected = false;
 
-    for (let i = 0; i < sprites.length; i++) {
-      for (let j = i + 1; j < sprites.length; j++) {
-        const s1 = sprites[i];
-        const s2 = sprites[j];
+  for (let i = 0; i < sprites.length; i++) {
+    for (let j = i + 1; j < sprites.length; j++) {
+      const s1 = sprites[i];
+      const s2 = sprites[j];
 
-        const dx = s1.x - s2.x;
-        const dy = s1.y - s2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+      const dx = s1.x - s2.x;
+      const dy = s1.y - s2.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < threshold) {
-          collisionDetected = true;
-          if (!state.collided) {
-            dispatch({ type: SWAP_QUEUES, payload: { id1: s1.id, id2: s2.id } });
-            dispatch({ type: SET_COLLIDED, payload: true });
-          }
+      if (distance < threshold) {
+        collisionDetected = true;
+
+        if (!state.collided) {
+          dispatch({ type: SWAP_QUEUES, payload: { id1: s1.id, id2: s2.id } });
+          dispatch({ type: SET_COLLIDED, payload: true });
+
+          swapLockRef.current = true;
+          setTimeout(() => {
+            swapLockRef.current = false;
+          }, 1500);
         }
       }
     }
+  }
 
-    if (!collisionDetected && state.collided) {
-      dispatch({ type: SET_COLLIDED, payload: false });
-    }
-  }, [state.multipleSprites, state.heroMode, state.collided, dispatch]);
+  if (!collisionDetected && state.collided) {
+    dispatch({ type: SET_COLLIDED, payload: false });
+  }
+}, [state.multipleSprites, state.heroMode, state.collided, dispatch]);
+
 
   useEffect(() => {
     const interval = setInterval(checkCollision, 100);
     return () => clearInterval(interval);
   }, [checkCollision]);
 
-  useEffect(() => {
-    if (state.collided && state.heroMode && !isRunningRef.current) {
-      setTimeout(() => {
-        handlePlayButton();
-      }, 500);
-    }
-  }, [state.collided, state.heroMode, handlePlayButton]);
+  const hasPlayedAfterCollision = useRef(false);
+
+useEffect(() => {
+  if (state.collided && state.heroMode && !isRunningRef.current && !hasPlayedAfterCollision.current) {
+    hasPlayedAfterCollision.current = true;
+
+    setTimeout(() => {
+      handlePlayButton();
+    }, 500);
+  }
+
+  if (!state.collided) {
+    hasPlayedAfterCollision.current = false; 
+  }
+}, [state.collided, state.heroMode, handlePlayButton]);
+
 
   const renderSprite = (item) => {
     const sharedStyle = {
@@ -236,7 +255,7 @@ export default function PreviewArea() {
     }
   };
 
-  return  (
+  return (
     <Stack height="100%" gap={2}>
       <Stack direction="row" justifyContent="center" gap={2} alignItems="center">
         <Button
